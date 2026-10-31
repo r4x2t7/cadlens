@@ -1,0 +1,16 @@
+CadLens
+Copyright (C) 2026 r4x2t7
+
+本项目以 GNU 通用公共许可证第 3 版（GPL-3.0-or-later）发布，全文见 LICENSE。
+
+内部静态链接了 LibreDWG（https://github.com/LibreDWG/libredwg），
+同样是 GPL-3.0-or-later。源码在 app/src/main/cpp/libredwg/，
+对应上游 master 分支 commit 7fdd73f39d74a78ac19e5629756a3c105349d8fd。
+
+为了让体积可控，随源码附带的 LibreDWG 做了两处裁剪（脚本见 tools/）：
+  - 只保留 WINDOWS-936 / WINDOWS-1252 / GB2312 / CP437 / MACINTOSH 五种码页，
+    src/codepages.c 中其余码页的查表项被置为 NULL（表示原样透传）
+  - 未包含 in_json.c / out_json.c / out_geojson.c 等与看图无关的模块
+
+按 GPL-3.0 第 6 条，完整对应源码即本仓库内容；如需上游未裁剪版本，
+可从上述地址获取。

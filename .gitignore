@@ -16,3 +16,7 @@ captures/
 # 系统
 .DS_Store
 Thumbs.db
+
+# CMake/NDK 中间产物
+.cxx/
+app/.cxx/

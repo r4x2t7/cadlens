@@ -26,7 +26,7 @@ class CadCanvasView(context: Context) : View(context) {
         set(value) {
             field = value
             rebuild()
-            if (value != null && value.bounds.valid) fit()
+            if (value != null && value.viewBounds.valid) fit()
             invalidate()
         }
 
@@ -147,7 +147,8 @@ class CadCanvasView(context: Context) : View(context) {
     fun fit() {
         anchor = null
         val s = scene ?: return
-        val b = s.bounds
+        // 用剔除离群点后的范围，否则一个远处杂点就能把整张图缩成像素
+        val b = s.viewBounds
         if (!b.valid || width == 0 || height == 0) return
         val w = (b.maxX - b.minX).coerceAtLeast(1e-6f)
         val h = (b.maxY - b.minY).coerceAtLeast(1e-6f)
@@ -183,7 +184,7 @@ class CadCanvasView(context: Context) : View(context) {
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         val a = anchor
-        if (a != null) centerOn(a) else if (scene?.bounds?.valid == true) fit()
+        if (a != null) centerOn(a) else if (scene?.viewBounds?.valid == true) fit()
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {

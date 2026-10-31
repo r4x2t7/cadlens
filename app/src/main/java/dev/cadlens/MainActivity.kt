@@ -25,6 +25,7 @@ import android.widget.ArrayAdapter
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import dev.cadlens.io.DwgBridge
 import dev.cadlens.io.DwgProbe
 import dev.cadlens.io.DxfReader
 import dev.cadlens.model.CadScene
@@ -295,15 +296,24 @@ class MainActivity : AppCompatActivity() {
     private var currentUri: Uri? = null
 
     private fun onDwg(bytes: ByteArray, name: String, uri: Uri?) {
-        runOnUiThread { status.text = "识别 DWG 结构…" }
+        // 先让内置的 LibreDWG 把 DWG 拆成 DXF，再走与 DXF 完全相同的出图路径
+        runOnUiThread { status.text = "内置转换器：DWG → DXF…" }
+        val conv = DwgBridge.toDxf(bytes, cacheDir)
+        val dxf = conv.dxf
+        if (dxf != null) {
+            runOnUiThread { status.text = "转换完成（${dxf.size / 1024} KB），正在出图…" }
+            onDxf(dxf, name, uri)
+            return
+        }
+        // 转换失败时至少把容器结构交代清楚，而不是甩一个空白画布
         val probe = DwgProbe(bytes).inspect()
         runOnUiThread {
-            status.text = "DWG · ${probe.version} · ${probe.objectCount} 个对象 · ${probe.sections.size} 个段"
-            showDwgDialog(probe, name)
+            status.text = "DWG 转换失败：${conv.error}"
+            showDwgDialog(probe, name, conv.error)
         }
     }
 
-    private fun showDwgDialog(probe: DwgProbe.Result, name: String) {
+    private fun showDwgDialog(probe: DwgProbe.Result, name: String, error: String?) {
         val box = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(20), dp(12), dp(20), dp(8))
@@ -339,13 +349,17 @@ class MainActivity : AppCompatActivity() {
         }
 
         line("")
-        line("这一步只读容器，不画实体。", 13f, 0xFFFFD166.toInt())
-        line("要直接出图：把图纸另存为 DXF（AutoCAD “另存为”→ AutoCAD 2000/2004 DXF），", 12f, 0xFFB8C4D4.toInt())
-        line("本 App 打开 DXF 会画出线条和文字，并能搜索图里的字。", 12f, 0xFFB8C4D4.toInt())
+        if (error != null) {
+            line("转换没成功：$error", 13f, 0xFFFF8B8B.toInt())
+            line("下面是从容器层读到的信息，可以用来判断是哪个环节断的。", 12f, 0xFF8B98A9.toInt())
+        } else {
+            line("容器结构读取正常。", 13f, 0xFFFFD166.toInt())
+        }
+        line("也可以把图纸另存为 DXF 再打开，那条路径不依赖原生库。", 12f, 0xFFB8C4D4.toInt())
 
         val scroll = android.widget.ScrollView(this).apply { addView(box) }
         AlertDialog.Builder(this)
-            .setTitle("DWG 结构信息")
+            .setTitle(if (error != null) "DWG 转换失败" else "DWG 结构信息")
             .setView(scroll)
             .setPositiveButton("知道了", null)
             .show()

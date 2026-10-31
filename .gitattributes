@@ -9,3 +9,6 @@
 # 脚本的换行符有约定，别让 Windows 带跑
 gradlew text eol=lf
 *.bat text eol=crlf
+
+# 内置的第三方源码保持原样，任何换行符改写都会让 diff 失真
+app/src/main/cpp/libredwg/** -text

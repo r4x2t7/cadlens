@@ -6,17 +6,44 @@ android {
     namespace = "dev.cadlens"
     compileSdk = 36
 
+    ndkVersion = "28.2.13676358"
+
     defaultConfig {
         applicationId = "dev.cadlens"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.2.0"
+
+        // 发布只带两种 ARM ABI；x86_64 只在 debug 里加，给模拟器用
+        ndk {
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a")
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
+            // 用 debug 签名，保证从 Releases 下下来能直接装；上架再换正式证书
+            signingConfig = signingConfigs.getByName("debug")
+            externalNativeBuild {
+                cmake {
+                    // 发布包要 -O2 + 打包时 strip，否则 so 会带一堆符号
+                    arguments += listOf("-DCMAKE_BUILD_TYPE=Release")
+                }
+            }
+        }
+        debug {
+            ndk {
+                abiFilters += "x86_64"
+            }
         }
     }
 
