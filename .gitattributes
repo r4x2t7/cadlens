@@ -1,0 +1,11 @@
+* text=auto
+
+# 图纸和 jar 不能被换行符改写
+*.dxf -text
+*.dwg -text
+*.jar -text
+*.png binary
+
+# 脚本的换行符有约定，别让 Windows 带跑
+gradlew text eol=lf
+*.bat text eol=crlf
