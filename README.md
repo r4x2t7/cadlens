@@ -4,7 +4,6 @@
 都在这台手机上完成，不上传、不联网。
 
 <p align="center">
-  <img src="docs/screenshot-dwg.png" width="300" alt="DWG 出图">
   <img src="docs/screenshot-zoom.png" width="300" alt="搜索定位并高亮">
 </p>
 
