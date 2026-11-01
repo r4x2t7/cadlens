@@ -4,7 +4,6 @@
 都在这台手机上完成，不上传、不联网。
 
 <p align="center">
-  <img src="docs/screenshot-zoom.png" width="300" alt="搜索定位并高亮">
 </p>
 
 上图是直接打开一张 407 KB 的鸿业暖通图（AC1018 / R2004）的结果：
